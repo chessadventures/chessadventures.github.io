@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kacper Tomaszewski – Szachy</title>
+  <style>
+    :root {
+      --light: #EEEED2;
+      --dark:  #769656;
+      --accent:#BACA44;
+      --white: #FFFFFF;
+      --black: #000000;
+    }
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--light);
+      color: var(--dark);
+      line-height:1.5;
+    }
+    header {
+      background: var(--dark);
+      color: var(--light);
+      padding:1rem;
+    }
+    .navbar {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .navbar .logo {
+      font-family: 'Playfair Display', serif;
+      font-size:1.5rem; font-weight:700;
+    }
+    .navbar nav ul {
+      list-style:none; display:flex; gap:1rem;
+    }
+    .navbar a {
+      color: var(--light); text-decoration:none; font-weight:500;
+      transition: color .2s;
+    }
+    .navbar a:hover { color: var(--accent); }
+    .cta { 
+      background: var(--accent); 
+      padding:.5rem 1rem; 
+      border-radius:4px;
+      color: var(--black) !important;
+    }
+
+    #hero {
+      background:
+        linear-gradient(135deg, rgba(118,150,86,.8), rgba(118,150,86,.4)),
+        url('https://images.unsplash.com/photo-1598964891089-750c5840cd6b?auto=format&fit=crop&w=1650&q=80')
+        center/cover;
+      color: var(--white);
+      text-align: center;
+      padding:6rem 1rem;
+    }
+    #hero h1 { font-size:2.5rem; font-family:'Playfair Display', serif; }
+    #hero p { margin:1rem 0 2rem; font-size:1.2rem; }
+    .btn {
+      display:inline-block; padding:.75rem 1.5rem; margin:.3rem;
+      border:none; border-radius:4px; cursor:pointer;
+      font-weight:500; transition:background .2s;
+    }
+    .btn.primary { background: var(--accent); color: var(--black); }
+    .btn.secondary {
+      background: transparent; color: var(--accent);
+      border:2px solid var(--accent);
+    }
+    .btn:hover { background: var(--dark); color: var(--light); }
+
+    section { padding:4rem 1rem; max-width:1200px; margin:0 auto; }
+    .section-title { text-align:center; margin-bottom:2rem; }
+
+    /* Grid */
+    .grid {
+      display:grid; gap:1.5rem;
+      grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+    }
+    .card {
+      background: var(--white);
+      border:1px solid #ddd; border-radius:8px;
+      overflow:hidden; transition: transform .2s;
+      display:flex; flex-direction:column;
+    }
+    .card:hover { transform: translateY(-5px); }
+    .card img { width:100%; aspect-ratio:1/1; object-fit:cover; }
+    .card-body { padding:1rem; flex:1; }
+    .price { color: var(--dark); font-weight:700; }
+
+    /* Calendar */
+    .calendar {
+      display:flex; flex-wrap:wrap; gap:.5rem;
+      justify-content:center;
+    }
+    .slot {
+      padding:.6rem 1rem; border:1px solid var(--accent);
+      border-radius:4px; cursor:pointer;
+      transition: background .2s;
+    }
+    .slot:hover {
+      background: var(--accent); color: var(--black);
+    }
+
+    form {
+      max-width:600px; margin:0 auto;
+      display:flex; flex-direction:column; gap:1rem;
+    }
+    input, textarea {
+      padding:.8rem 1rem; border:1px solid #ccc;
+      border-radius:4px; font-family:inherit;
+    }
+    footer {
+      background: var(--dark);
+      color: var(--light);
+      text-align:center; padding:2rem 1rem;
+    }
+
+    @media(min-width:768px) {
+      #hero h1 { font-size:3.5rem; }
+      .navbar nav ul { gap:2rem; }
+    }
+  </style>
+  <script defer>
+    document.addEventListener('DOMContentLoaded',()=>{
+      // Toggle dark/light board colors
+      const btn = document.createElement('button');
+      btn.textContent='🌓'; btn.title='Tryb ciemny';
+      btn.style='background:none;border:none;font-size:1.5rem;color:var(--light);cursor:pointer;';
+      document.querySelector('.navbar ul').append(btn);
+      btn.onclick = () => {
+        document.body.classList.toggle('dark-mode');
+        if(document.body.classList.contains('dark-mode')) {
+          document.documentElement.style.setProperty('--light','#000');
+          document.documentElement.style.setProperty('--dark','#FFF');
+        } else {
+          document.documentElement.style.setProperty('--light','#EEEED2');
+          document.documentElement.style.setProperty('--dark','#769656');
+        }
+      };
+
+      // Demo bestsellery
+      const bests=document.querySelector('#bestsellers .grid');
+      const prods=[
+        {t:'Szachownica turniejowa',p:'249 zł',i:'https://images.unsplash.com/photo-1560871269-19a09f45a4a7?auto=format&fit=crop&w=800&q=60'},
+        {t:'Figury Staunton No.5',p:'179 zł',i:'https://images.unsplash.com/photo-1516222338250-863e1be95a8c?auto=format&fit=crop&w=800&q=60'},
+        {t:'Zegar DGT 3000',p:'299 zł',i:'https://images.unsplash.com/photo-1605580043695-110019d19c8c?auto=format&fit=crop&w=800&q=60'}
+      ];
+      prods.forEach(o=>{
+        const c=document.createElement('div'); c.className='card';
+        c.innerHTML=`
+          <img src="${o.i}" alt="${o.t}">
+          <div class="card-body">
+            <h3>${o.t}</h3>
+            <p class="price">${o.p}</p>
+            <button class="btn primary" style="width:100%;">Dodaj do koszyka</button>
+          </div>`;
+        bests.append(c);
+      });
+    });
+  </script>
+</head>
+<body>
+
+  <header>
+    <div class="navbar">
+      <div class="logo">KACPER TOMASZEWSKI</div>
+      <nav>
+        <ul>
+          <li><a href="#shop">Sklep</a></li>
+          <li><a href="#courses">Kursy</a></li>
+          <li><a href="#blog">Blog</a></li>
+          <li><a href="#about">O mnie</a></li>
+          <li><a href="#contact" class="cta">Kontakt</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <section id="hero">
+    <h1>Zagraj ruch życia</h1>
+    <p>Figury. Wiedza. Inspiracja.</p>
+    <a class="btn primary" href="#shop">Kup zestaw startowy</a>
+    <a class="btn secondary" href="#courses">Umów lekcję</a>
+  </section>
+
+  <section id="bestsellers">
+    <h2 class="section-title">Bestsellery</h2>
+    <div class="grid"></div>
+  </section>
+
+  <section id="shop">
+    <h2 class="section-title">Pełny katalog produktów</h2>
+    <p>Tu wczyta się pełna oferta (140 SKU) z platformy e-commerce.</p>
+  </section>
+
+  <section id="courses">
+    <h2 class="section-title">Kursy on-line z mistrzem FIDE</h2>
+    <p>Wybierz pakiet lekcji i kliknij dostępny termin:</p>
+    <div class="calendar">
+      <span class="slot">Pon 18:00</span>
+      <span class="slot">Wt 15:30</span>
+      <span class="slot">Śr 20:00</span>
+      <span class="slot">Czw 17:00</span>
+      <span class="slot">Pt 19:30</span>
+    </div>
+  </section>
+
+  <section id="testimonials">
+    <h2 class="section-title">Opinie uczniów</h2>
+    <blockquote>“Dzięki lekcjom Kacpra poprawiłem ranking o 200 oczek w pół roku!” – Antek, 14 lat</blockquote>
+  </section>
+
+  <section id="blog">
+    <h2 class="section-title">Najnowsze artykuły</h2>
+    <div class="grid">
+      <article class="card">
+        <img src="https://images.unsplash.com/photo-1518545445319-071a5ec43a3b?auto=format&fit=crop&w=800&q=60" alt="Debiut włoski">
+        <div class="card-body">
+          <h3>Debiut włoski krok po kroku</h3>
+          <p>Otwórz grę jak Magnus i kontroluj centrum od pierwszego ruchu.</p>
+          <a class="btn secondary" href="#">Czytaj</a>
+        </div>
+      </article>
+      <article class="card">
+        <img src="https://images.unsplash.com/photo-1589987600698-88828a61c293?auto=format&fit=crop&w=800&q=60" alt="Wybór szachownicy">
+        <div class="card-body">
+          <h3>Jak wybrać idealną szachownicę?</h3>
+          <p>Poradnik: drewno, rozmiary pól i FIDE compliant.</p>
+          <a class="btn secondary" href="#">Czytaj</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="about">
+    <h2 class="section-title">O mnie</h2>
+    <p>Nazywam się <strong>Kacper Tomaszewski</strong>, mistrz FIDE (ELO 2363). Od 10 lat łączę grę turniejową z pracą trenera, pomagając pasjonatom w każdym wieku.</p>
+  </section>
+
+  <section id="contact">
+    <h2 class="section-title">Skontaktuj się</h2>
+    <form>
+      <input type="text" placeholder="Imię i nazwisko" required>
+      <input type="email" placeholder="Adres e-mail" required>
+      <textarea rows="5" placeholder="Wiadomość"></textarea>
+      <button class="btn primary" type="submit">Wyślij</button>
+    </form>
+  </section>
+
+  <footer>
+    <p>© 2025 Kacper Tomaszewski • Szachy • Wszelkie prawa zastrzeżone.</p>
+  </footer>
+
+</body>
+</html>
